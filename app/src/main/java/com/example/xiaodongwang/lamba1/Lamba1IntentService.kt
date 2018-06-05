@@ -20,37 +20,29 @@ class Lamba1IntentService : IntentService("Lamba1IntentService") {
 
     override fun onHandleIntent(intent: Intent?) {
         Log.i(LOG_TAG, "receive message")
-        val builder = NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setContentTitle("Service Lamba1 in processing...")
-                .setContentText("Hello World!")
-        val resultIntent = Intent(this, MainActivity::class.java)
-        val stackBuilder = TaskStackBuilder.create(this)
-        stackBuilder.addParentStack(MainActivity::class.java)
-        stackBuilder.addNextIntent(resultIntent)
-        val resultPendingIntent = stackBuilder.getPendingIntent(
-                0,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        builder.setContentIntent(resultPendingIntent)
-        val mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        mNotificationManager.notify(1, builder.build())
+        if (intent == null) {
+            Log.e(LOG_TAG, "intent missing")
+            return
+        }
+        var name = ""
+        if (intent.hasExtra("name")) {
+            name = intent.getStringExtra("name")
+        } else {
+            Log.i(LOG_TAG, "name is missing in intent")
+        }
+        var payload = ""
+        if (intent.hasExtra("payload")) {
+            payload = intent.getStringExtra("payload")
+            Log.i(LOG_TAG, "payload is missing in intent")
+        }
+        val sendIntent = Intent("com.example.xiaodongwang.lambdamaster.resultreceiver")
+        sendIntent.setPackage("com.example.xiaodongwang.lambdamaster")
+        sendIntent.putExtra("name", name)
+        sendIntent.putExtra("payload", payload)
+        sendBroadcast(sendIntent)
     }
 
     companion object {
-        /**
-         * Starts this service to perform action Foo with the given parameters. If
-         * the service is already performing a task this action will be queued.
-         *
-         * @see IntentService
-         */
-        // TODO: Customize helper method
-        @JvmStatic
-        fun startAction(context: Context) {
-            val intent = Intent(context, Lamba1IntentService::class.java)
-            context.startService(intent)
-        }
-
         private val LOG_TAG = "Lamba1IntentService"
     }
 }
